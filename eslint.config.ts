@@ -63,6 +63,8 @@ export default [
         },
       ],
       'vue/component-api-style': ['error', ['script-setup']],
+      'vue/max-attributes-per-line': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
     },
   },
 ];
