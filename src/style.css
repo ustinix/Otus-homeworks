@@ -65,6 +65,42 @@ button:focus-visible {
   text-align: center;
 }
 
+.forms {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 150px;
+  }
+
+  label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #555;
+    text-align: left;
+  }
+
+  input {
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #42b983;
+      box-shadow: 0 0 0 2px rgba(66, 185, 131, 0.2);
+    }
+  }
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
