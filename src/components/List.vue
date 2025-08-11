@@ -7,6 +7,7 @@ const color = ref('black');
 const isListVisible = ref(true);
 const buttonText = ref('Скрыть список');
 const isAgeVisible = ref<boolean[]>([]);
+const isGenderVisible = ref(false);
 
 getUsers().then(() => {
   isAgeVisible.value = new Array(users.value.length).fill(false);
@@ -20,45 +21,57 @@ const openCloseList = () => {
 const openCloseAge = (index: number) => {
   isAgeVisible.value[index] = !isAgeVisible.value[index];
 };
+
+const openCloseGender = () => {
+  isGenderVisible.value = !isGenderVisible.value;
+};
 </script>
 
 <template>
   <div class="content">
     <h1>Список гостей:</h1>
-    <div class="forms">
+    <div class="forms list-forms">
       <div class="form-field">
-        <label class="form_label" for="color">Изменить цвет текста на:</label>
+        <label class="form_label" for="color">Изменить цвет списка на:</label>
         <input id="color" v-model="color" type="text" placeholder="black" />
       </div>
+      <div class="form-field gender-input">
+        <label for="gender" class="form_label">Добавить пол в таблицу</label>
+        <input id="gender" type="checkbox" @change="openCloseGender" />
+      </div>
     </div>
-    <button @click="openCloseList">{{ buttonText }}</button>
+    <button class="btn-openClose" @click="openCloseList">{{ buttonText }}</button>
     <div v-if="isLoading">Загрузка...</div>
     <div v-else-if="error">{{ error }}</div>
-    <table v-else-if="isListVisible">
-      <thead>
-        <tr>
-          <th>Имя</th>
-          <th>Фамилия</th>
-          <th>Возраст</th>
-          <th>Придет</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(user, index) in users" :key="user.id">
-          <td>{{ user.name }}</td>
-          <td>{{ user.surname }}</td>
-          <td
-            :class="isAgeVisible[index] ? 'age-visible' : 'age-invisible'"
-            @click="openCloseAge(index)"
-          >
-            {{ user.age }}
-          </td>
-          <td>
-            <input class="coming-input" type="checkbox" :checked="user.isComing" />
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-container">
+      <table v-show="isListVisible">
+        <thead>
+          <tr>
+            <th>Имя</th>
+            <th>Фамилия</th>
+            <th>Возраст</th>
+            <th>Придет</th>
+            <th v-if="isGenderVisible">Пол</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(user, index) in users" :key="user.id">
+            <td>{{ user.name }}</td>
+            <td>{{ user.surname }}</td>
+            <td
+              :class="isAgeVisible[index] ? 'age-visible' : 'age-invisible'"
+              @click="openCloseAge(index)"
+            >
+              {{ user.age }}
+            </td>
+            <td>
+              <input class="coming-input" type="checkbox" :checked="user.isComing" />
+            </td>
+            <td v-if="isGenderVisible">{{ user.gender }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -86,6 +99,13 @@ const openCloseAge = (index: number) => {
     text-align: center;
     padding: 1.5rem;
   }
+
+  .table-container {
+    height: 500px;
+    overflow-y: auto;
+    border-radius: 4px;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -121,21 +141,14 @@ const openCloseAge = (index: number) => {
     .coming-input {
       pointer-events: none;
     }
-
-    button {
-      padding: 0.4rem 0.8rem;
-      background: #f8f8f8;
-      color: #ff4444;
-      border: 1px solid #eee;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &:hover {
-        background: #ffebee;
-      }
-    }
   }
+}
+.list-forms {
+  flex-direction: column;
+  align-items: start;
+}
+.gender-input {
+  display: flex;
+  flex-direction: row;
 }
 </style>
