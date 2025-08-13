@@ -51,7 +51,7 @@ export default [
       },
     },
     rules: {
-      'vue/multi-word-component-names': 'off',
+      'vue/multi-word-component-names': 'warn',
       'vue/html-self-closing': [
         'error',
         {
@@ -63,6 +63,8 @@ export default [
         },
       ],
       'vue/component-api-style': ['error', ['script-setup']],
+      'vue/max-attributes-per-line': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
     },
   },
 ];
