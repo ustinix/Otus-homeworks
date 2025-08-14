@@ -1,3 +1,16 @@
+<script setup lang="ts">
+import type { DialogProps } from '../types/dialogProps';
+
+defineProps<DialogProps>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+}>();
+
+const close = () => {
+  emit('update:modelValue', false);
+};
+</script>
 <template>
   <v-dialog
     max-width="600"
@@ -31,30 +44,10 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" @click="close">Закрыть</v-btn>
+        <app-button color="primary" @click="close">Закрыть</app-button>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
-
-<script setup lang="ts">
-import type { Product } from '../types/product';
-interface DialogProps {
-  selectedProduct: Product | null;
-  modelValue: boolean;
-}
-
-defineProps<DialogProps>();
-
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void;
-  (e: 'close'): void;
-}>();
-
-const close = () => {
-  emit('update:modelValue', false);
-  emit('close');
-};
-</script>
 
 <style scoped></style>

@@ -60,7 +60,9 @@ const showDetails = (product: Product) => {
           </v-card-text>
 
           <v-card-actions class="flex-grow-0">
-            <v-btn color="primary" variant="tonal" @click="showDetails(product)"> Подробнее </v-btn>
+            <app-button color="primary" variant="tonal" @click="showDetails(product)">
+              Подробнее
+            </app-button>
           </v-card-actions>
         </v-card>
       </v-col>

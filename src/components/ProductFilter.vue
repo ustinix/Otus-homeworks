@@ -1,3 +1,16 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { FilterProps } from '../types/filterProps';
+
+const props = defineProps<FilterProps>();
+const emit = defineEmits<{
+  (e: 'update:selected-category', value: string | null): void;
+}>();
+const selectedCategory = computed({
+  get: () => props.selectedCategory,
+  set: value => emit('update:selected-category', value),
+});
+</script>
 <template>
   <v-row class="mb-6">
     <v-col cols="12">
@@ -13,21 +26,5 @@
     </v-col>
   </v-row>
 </template>
-
-<script setup lang="ts">
-import { computed } from 'vue';
-
-interface FilterProps {
-  selectedCategory: string | null;
-  categories: string[];
-}
-
-const props = defineProps<FilterProps>();
-const emit = defineEmits(['update:selected-category']);
-const selectedCategory = computed({
-  get: () => props.selectedCategory,
-  set: value => emit('update:selected-category', value),
-});
-</script>
 
 <style scoped></style>
