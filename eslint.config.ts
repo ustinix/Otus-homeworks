@@ -52,16 +52,7 @@ export default [
     },
     rules: {
       'vue/multi-word-component-names': 'warn',
-      'vue/html-self-closing': [
-        'error',
-        {
-          html: {
-            void: 'always',
-            normal: 'always',
-            component: 'always',
-          },
-        },
-      ],
+      'vue/html-self-closing': 'off',
       'vue/component-api-style': ['error', ['script-setup']],
       'vue/max-attributes-per-line': 'off',
       'vue/singleline-html-element-content-newline': 'off',
