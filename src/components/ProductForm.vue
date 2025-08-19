@@ -2,8 +2,8 @@
 import { useField, useForm } from 'vee-validate';
 import { ref } from 'vue';
 import BaseForm from './BaseForm.vue';
+import { productService } from '../services/product-service';
 import type { Product } from '../types/product';
-import { useProductStore } from '../stores/productStore';
 
 interface FormValues {
   name: string;
@@ -20,9 +20,8 @@ defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean];
+  created: [product: Product];
 }>();
-
-const productStore = useProductStore();
 
 const { handleSubmit, handleReset } = useForm<FormValues>({
   validationSchema: {
@@ -32,7 +31,7 @@ const { handleSubmit, handleReset } = useForm<FormValues>({
       return 'Имя должно содержать минимум две буквы.';
     },
     price(value: number) {
-      if (value > 0) return true;
+      if (value >= 0) return true;
 
       return 'Цена должна быть больше 0.';
     },
@@ -89,8 +88,12 @@ const submit = handleSubmit(async values => {
       },
     };
 
-    await productStore.createProduct(productToAdd);
-    closeForm();
+    const newProduct = await productService().addProduct(productToAdd);
+
+    if (newProduct) {
+      emit('created', newProduct);
+      closeForm();
+    }
   } catch (error) {
     console.error('Ошибка при создании товара:', error);
   } finally {
@@ -104,12 +107,10 @@ const closeForm = () => {
 };
 
 const onFormSubmit = () => {
-  console.log('onFormSubmit вызван');
   submit();
 };
 
 const onFormReset = () => {
-  console.log('onFormReset вызван');
   handleReset();
 };
 </script>
