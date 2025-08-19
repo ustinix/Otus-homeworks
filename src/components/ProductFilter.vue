@@ -12,7 +12,7 @@ const selectedCategory = computed({
 });
 </script>
 <template>
-  <v-row class="mb-6">
+  <v-row>
     <v-col cols="12">
       <v-select
         v-model="selectedCategory"

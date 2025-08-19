@@ -1,8 +1,217 @@
-//Создание товара
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useField, useForm } from 'vee-validate';
+import { ref } from 'vue';
+import BaseForm from './BaseForm.vue';
+import type { Product } from '../types/product';
+import { useProductStore } from '../stores/productStore';
+
+interface FormValues {
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  imageURL: string;
+  ratingCount: number;
+  rating: string;
+}
+defineProps<{
+  modelValue: boolean;
+}>();
+
+const emit = defineEmits<{
+  'update:modelValue': [value: boolean];
+}>();
+
+const productStore = useProductStore();
+
+const { handleSubmit, handleReset } = useForm<FormValues>({
+  validationSchema: {
+    name(value: string) {
+      if (value?.length >= 2) return true;
+
+      return 'Имя должно содержать минимум две буквы.';
+    },
+    price(value: number) {
+      if (value > 0) return true;
+
+      return 'Цена должна быть больше 0.';
+    },
+    description(value: string) {
+      if (value?.length >= 2) return true;
+
+      return 'Описание должно содержать минимум две буквы.';
+    },
+    category(value: string) {
+      if (value?.length >= 2) return true;
+
+      return 'Имя категории должно содержать минимум две буквы.';
+    },
+    imageURL(value: string) {
+      if (/^https?:\/\/.+\..+/.test(value)) return true;
+      return 'Пожалуйста введите URL.';
+    },
+    ratingCount(value: string) {
+      if (Number(value) >= 0) {
+        return true;
+      }
+      return 'Количество оценок должно быть целым неотрицательным числом';
+    },
+    rating(value: string) {
+      if (value) return true;
+      return 'Пожалуйста выберите рейтинг.';
+    },
+  },
+});
+
+const name = useField<string>('name');
+const price = useField<number>('price');
+const description = useField<string>('description');
+const category = useField<string>('category');
+const imageURL = useField<string>('imageURL');
+const ratingCount = useField<number>('ratingCount');
+const rating = useField<string | null>('select');
+
+const items = ref<string[]>(['0', '1', '2', '3', '4', '5']);
+const isLoading = ref(false);
+
+const submit = handleSubmit(async values => {
+  isLoading.value = true;
+  try {
+    const productToAdd: Omit<Product, 'id'> = {
+      title: values.name,
+      price: values.price,
+      description: values.description,
+      category: values.category,
+      image: values.imageURL,
+      rating: {
+        rate: parseFloat(values.rating),
+        count: values.ratingCount,
+      },
+    };
+
+    await productStore.createProduct(productToAdd);
+    closeForm();
+  } catch (error) {
+    console.error('Ошибка при создании товара:', error);
+  } finally {
+    isLoading.value = false;
+  }
+});
+
+const closeForm = () => {
+  emit('update:modelValue', false);
+  handleReset();
+};
+
+const onFormSubmit = () => {
+  console.log('onFormSubmit вызван');
+  submit();
+};
+
+const onFormReset = () => {
+  console.log('onFormReset вызван');
+  handleReset();
+};
+</script>
 
 <template>
-  <div>ProductForm</div>
+  <div>
+    <v-dialog
+      :model-value="modelValue"
+      max-width="600"
+      persistent
+      @update:model-value="$emit('update:modelValue', $event)"
+    >
+      <v-card>
+        <base-form @submit="onFormSubmit" @reset="onFormReset">
+          <template #header>
+            <v-card-title class="headline">Создание нового товара</v-card-title>
+          </template>
+
+          <template #body>
+            <v-text-field
+              v-model="name.value.value"
+              :error-messages="name.errorMessage.value"
+              label="Название товара"
+              required
+              :disabled="isLoading"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="price.value.value"
+              :error-messages="price.errorMessage.value"
+              label="Цена"
+              type="number"
+              min="0"
+              required
+              :disabled="isLoading"
+            ></v-text-field>
+
+            <v-textarea
+              v-model="description.value.value"
+              :error-messages="description.errorMessage.value"
+              label="Описание"
+              required
+              :disabled="isLoading"
+            ></v-textarea>
+
+            <v-text-field
+              v-model="category.value.value"
+              :error-messages="category.errorMessage.value"
+              label="Категория"
+              required
+              :disabled="isLoading"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="imageURL.value.value"
+              :error-messages="imageURL.errorMessage.value"
+              label="URL изображения"
+              required
+              :disabled="isLoading"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="ratingCount.value.value"
+              :error-messages="ratingCount.errorMessage.value"
+              label="Количество оценок"
+              type="number"
+              min="0"
+              required
+              :disabled="isLoading"
+            ></v-text-field>
+
+            <v-select
+              v-model="rating.value.value"
+              :error-messages="rating.errorMessage.value"
+              :items="items"
+              label="Рейтинг"
+              required
+              :disabled="isLoading"
+            ></v-select>
+          </template>
+
+          <template #actions>
+            <v-btn color="error" :disabled="isLoading" @click="closeForm">Отмена</v-btn>
+            <v-btn color="primary" type="submit" :loading="isLoading" :disabled="isLoading">
+              Создать
+            </v-btn>
+          </template>
+        </base-form>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.headline {
+  background-color: #f5f5f5;
+  padding: 16px;
+}
+</style>

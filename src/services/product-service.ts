@@ -1,11 +1,11 @@
 import axios from 'axios';
 import type { Product } from '../types/product';
-import { ref, type Ref } from 'vue';
+import { ref } from 'vue';
 
 const API_URL = 'https://fakestoreapi.com/products';
 
 export function productService() {
-  const products: Ref<Product[]> = ref([]);
+  const products = ref<Product[]>([]);
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
 
@@ -52,6 +52,8 @@ export function productService() {
 
   return {
     products,
+    isLoading,
+    error,
     getProducts,
     addProduct,
     deleteProduct,
