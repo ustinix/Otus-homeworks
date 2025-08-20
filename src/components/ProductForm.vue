@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useField, useForm } from 'vee-validate';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import BaseForm from './BaseForm.vue';
 import { productService } from '../services/product-service';
 import type { Product } from '../types/product';
@@ -16,11 +16,9 @@ const emit = defineEmits<{
   created: [product: Product];
 }>();
 
-const { handleReset, meta } = useForm<ProductFormValues>({
+const { handleReset } = useForm<ProductFormValues>({
   validationSchema: productValidationSchema,
 });
-
-const isFormValid = computed(() => meta.value.valid);
 
 const name = useField<string>('name');
 const price = useField<string>('price');
@@ -149,12 +147,7 @@ const onFormReset = () => {
 
           <template #actions>
             <v-btn color="error" :disabled="isLoading" @click="closeForm">Отмена</v-btn>
-            <v-btn
-              color="primary"
-              type="submit"
-              :loading="isLoading"
-              :disabled="isLoading || !isFormValid"
-            >
+            <v-btn color="primary" type="submit" :loading="isLoading" :disabled="isLoading">
               Создать
             </v-btn>
           </template>

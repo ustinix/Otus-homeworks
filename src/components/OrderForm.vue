@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useField, useForm } from 'vee-validate';
 import BaseForm from './BaseForm.vue';
 import type { OrderFormValues } from '../types/forms';
@@ -30,11 +30,9 @@ watch(showForm, value => {
   emit('update:modelValue', value);
 });
 
-const { handleSubmit, handleReset, meta } = useForm<OrderFormValues>({
+const { handleSubmit, handleReset } = useForm<OrderFormValues>({
   validationSchema: orderValidationSchema(showAddressFields),
 });
-
-const isFormValid = computed(() => meta.value.valid);
 
 const customerName = useField<string>('customerName');
 const email = useField<string>('email');
@@ -251,12 +249,7 @@ const onFormReset = () => {
 
         <template #actions>
           <v-btn color="error" :disabled="isLoading" @click="closeForm"> Отмена </v-btn>
-          <v-btn
-            color="primary"
-            type="submit"
-            :loading="isLoading"
-            :disabled="isLoading || !isFormValid"
-          >
+          <v-btn color="primary" type="submit" :loading="isLoading" :disabled="isLoading">
             {{ isLoading ? 'Оформление...' : 'Оформить заказ' }}
           </v-btn>
         </template>
