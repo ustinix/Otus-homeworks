@@ -1,4 +1,3 @@
-//Поиск в шапке
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import type { Product } from '../types/product';
@@ -19,7 +18,7 @@ const filteredProducts = computed(() => {
   const query = searchQuery.value.toLowerCase();
   return props.products.filter(
     product =>
-      product.title.toLowerCase().includes(query) || product.price.toString().includes(query),
+      product.title?.toLowerCase().includes(query) || product.price.toString().includes(query),
   );
 });
 

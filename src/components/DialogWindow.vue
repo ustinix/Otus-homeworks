@@ -5,18 +5,18 @@ import AppButton from './AppButton.vue';
 defineProps<DialogProps>();
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: boolean): void;
+  (e: 'update:isOpen', value: boolean): void;
 }>();
 
 const close = () => {
-  emit('update:modelValue', false);
+  emit('update:isOpen', false);
 };
 </script>
 <template>
   <v-dialog
     max-width="600"
-    :model-value="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
+    :model-value="isOpen"
+    @update:model-value="emit('update:isOpen', $event)"
   >
     <v-card v-if="selectedProduct">
       <v-card-title>{{ selectedProduct.title }}</v-card-title>

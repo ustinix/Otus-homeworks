@@ -180,7 +180,7 @@ const hideNotification = () => {
             </v-card>
           </v-col>
         </v-row>
-        <dialog-window v-model="dialog" :selected-product="selectedProduct" />
+        <dialog-window v-model:is-open="dialog" :selected-product="selectedProduct" />
       </v-container>
     </template>
   </v-app>

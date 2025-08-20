@@ -12,9 +12,3 @@ export interface OrderFormType {
   cardCvv: string;
   agreeToTerms: boolean;
 }
-
-export interface OrderResponse {
-  success: boolean;
-  orderId?: string;
-  message?: string;
-}

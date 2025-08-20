@@ -1,22 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useField, useForm } from 'vee-validate';
 import BaseForm from './BaseForm.vue';
-
-interface OrderFormValues {
-  customerName: string;
-  email: string;
-  phone: string;
-  birthDate: string;
-  country: string;
-  city: string;
-  street: string;
-  house: string;
-  cardNumber: string;
-  cardExpiry: string;
-  cardCvv: string;
-  agreeToTerms: boolean;
-}
+import type { OrderFormValues } from '../types/forms';
+import { orderValidationSchema } from '../utils/orderValidation';
+import { formatCardNumber } from '../utils/formatCardNumber';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -42,58 +30,11 @@ watch(showForm, value => {
   emit('update:modelValue', value);
 });
 
-const { handleSubmit, handleReset } = useForm<OrderFormValues>({
-  validationSchema: {
-    customerName(value: string) {
-      if (value?.length >= 2) return true;
-      return 'Имя должно содержать минимум две буквы';
-    },
-    email(value: string) {
-      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return true;
-      return 'Введите корректный email';
-    },
-    phone(value: string) {
-      if (/^\+?[\d\s\-()]{10,}$/.test(value)) return true;
-      return 'Введите корректный телефон';
-    },
-    birthDate(value: string) {
-      if (value) return true;
-      return 'Введите дату рождения';
-    },
-    country(value: string) {
-      if (!showAddressFields.value || value?.length >= 2) return true;
-      return 'Введите страну';
-    },
-    city(value: string) {
-      if (!showAddressFields.value || value?.length >= 2) return true;
-      return 'Введите город';
-    },
-    street(value: string) {
-      if (!showAddressFields.value || value?.length >= 2) return true;
-      return 'Введите улицу';
-    },
-    house(value: string) {
-      if (!showAddressFields.value || value?.length >= 1) return true;
-      return 'Введите дом';
-    },
-    cardNumber(value: string) {
-      if (/^\d{16}$/.test(value?.replace(/\s/g, ''))) return true;
-      return 'Номер карты должен содержать 16 цифр';
-    },
-    cardExpiry(value: string) {
-      if (/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(value)) return true;
-      return 'Формат: ММ/ГГ';
-    },
-    cardCvv(value: string) {
-      if (/^\d{3,4}$/.test(value)) return true;
-      return 'CVV должен содержать 3-4 цифры';
-    },
-    agreeToTerms(value: boolean) {
-      if (value) return true;
-      return 'Необходимо согласие с обработкой данных';
-    },
-  },
+const { handleSubmit, handleReset, meta } = useForm<OrderFormValues>({
+  validationSchema: orderValidationSchema(showAddressFields),
 });
+
+const isFormValid = computed(() => meta.value.valid);
 
 const customerName = useField<string>('customerName');
 const email = useField<string>('email');
@@ -109,13 +50,6 @@ const cardCvv = useField<string>('cardCvv');
 const agreeToTerms = useField<boolean>('agreeToTerms');
 
 const countries = ref(['Россия', 'Казахстан']);
-
-const formatCardNumber = (value: string) => {
-  return value
-    .replace(/\s/g, '')
-    .replace(/(\d{4})/g, '$1 ')
-    .trim();
-};
 
 const submit = handleSubmit(async values => {
   isLoading.value = true;
@@ -137,8 +71,7 @@ const submit = handleSubmit(async values => {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      console.log('Заказ успешно отправлен:', data);
+      await response.json();
 
       emit('order-created', values);
       closeForm();
@@ -318,7 +251,12 @@ const onFormReset = () => {
 
         <template #actions>
           <v-btn color="error" :disabled="isLoading" @click="closeForm"> Отмена </v-btn>
-          <v-btn color="primary" type="submit" :loading="isLoading" :disabled="isLoading">
+          <v-btn
+            color="primary"
+            type="submit"
+            :loading="isLoading"
+            :disabled="isLoading || !isFormValid"
+          >
             {{ isLoading ? 'Оформление...' : 'Оформить заказ' }}
           </v-btn>
         </template>

@@ -1,19 +1,12 @@
 <script setup lang="ts">
 import { useField, useForm } from 'vee-validate';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import BaseForm from './BaseForm.vue';
 import { productService } from '../services/product-service';
 import type { Product } from '../types/product';
+import type { ProductFormValues } from '../types/forms';
+import { productValidationSchema } from '../utils/productValidation';
 
-interface FormValues {
-  name: string;
-  price: number;
-  description: string;
-  category: string;
-  imageURL: string;
-  ratingCount: number;
-  rating: string;
-}
 defineProps<{
   modelValue: boolean;
 }>();
@@ -23,72 +16,38 @@ const emit = defineEmits<{
   created: [product: Product];
 }>();
 
-const { handleSubmit, handleReset } = useForm<FormValues>({
-  validationSchema: {
-    name(value: string) {
-      if (value?.length >= 2) return true;
-
-      return 'Имя должно содержать минимум две буквы.';
-    },
-    price(value: number) {
-      if (value >= 0) return true;
-
-      return 'Цена должна быть больше 0.';
-    },
-    description(value: string) {
-      if (value?.length >= 2) return true;
-
-      return 'Описание должно содержать минимум две буквы.';
-    },
-    category(value: string) {
-      if (value?.length >= 2) return true;
-
-      return 'Имя категории должно содержать минимум две буквы.';
-    },
-    imageURL(value: string) {
-      if (/^https?:\/\/.+\..+/.test(value)) return true;
-      return 'Пожалуйста введите URL.';
-    },
-    ratingCount(value: string) {
-      if (Number(value) >= 0) {
-        return true;
-      }
-      return 'Количество оценок должно быть целым неотрицательным числом';
-    },
-    rating(value: string) {
-      if (value) return true;
-      return 'Пожалуйста выберите рейтинг.';
-    },
-  },
+const { handleReset, meta } = useForm<ProductFormValues>({
+  validationSchema: productValidationSchema,
 });
 
+const isFormValid = computed(() => meta.value.valid);
+
 const name = useField<string>('name');
-const price = useField<number>('price');
+const price = useField<string>('price');
 const description = useField<string>('description');
 const category = useField<string>('category');
 const imageURL = useField<string>('imageURL');
-const ratingCount = useField<number>('ratingCount');
-const rating = useField<string | null>('select');
+const ratingCount = useField<string>('ratingCount');
+const rating = useField<string>('select');
 
 const items = ref<string[]>(['0', '1', '2', '3', '4', '5']);
 const isLoading = ref(false);
 
-const submit = handleSubmit(async values => {
+const submit = async () => {
   isLoading.value = true;
+  const productData: Omit<Product, 'id'> = {
+    title: name.value.value,
+    price: parseFloat(price.value.value),
+    description: description.value.value,
+    category: category.value.value,
+    image: imageURL.value.value,
+    rating: {
+      rate: parseFloat(rating.value.value),
+      count: parseInt(ratingCount.value.value),
+    },
+  };
   try {
-    const productToAdd: Omit<Product, 'id'> = {
-      title: values.name,
-      price: values.price,
-      description: values.description,
-      category: values.category,
-      image: values.imageURL,
-      rating: {
-        rate: parseFloat(values.rating),
-        count: values.ratingCount,
-      },
-    };
-
-    const newProduct = await productService().addProduct(productToAdd);
+    const newProduct = await productService().addProduct(productData);
 
     if (newProduct) {
       emit('created', newProduct);
@@ -99,15 +58,11 @@ const submit = handleSubmit(async values => {
   } finally {
     isLoading.value = false;
   }
-});
+};
 
 const closeForm = () => {
   emit('update:modelValue', false);
   handleReset();
-};
-
-const onFormSubmit = () => {
-  submit();
 };
 
 const onFormReset = () => {
@@ -124,7 +79,7 @@ const onFormReset = () => {
       @update:model-value="$emit('update:modelValue', $event)"
     >
       <v-card>
-        <base-form @submit="onFormSubmit" @reset="onFormReset">
+        <base-form @send="submit" @reset="onFormReset">
           <template #header>
             <v-card-title class="headline">Создание нового товара</v-card-title>
           </template>
@@ -194,7 +149,12 @@ const onFormReset = () => {
 
           <template #actions>
             <v-btn color="error" :disabled="isLoading" @click="closeForm">Отмена</v-btn>
-            <v-btn color="primary" type="submit" :loading="isLoading" :disabled="isLoading">
+            <v-btn
+              color="primary"
+              type="submit"
+              :loading="isLoading"
+              :disabled="isLoading || !isFormValid"
+            >
               Создать
             </v-btn>
           </template>

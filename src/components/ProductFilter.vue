@@ -1,27 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { FilterProps } from '../types/filterProps';
 
-const props = defineProps<FilterProps>();
+defineProps<FilterProps>();
 const emit = defineEmits<{
   (e: 'update:selected-category', value: string | null): void;
 }>();
-const selectedCategory = computed({
-  get: () => props.selectedCategory,
-  set: value => emit('update:selected-category', value),
-});
 </script>
 <template>
   <v-row>
     <v-col cols="12">
       <v-select
-        v-model="selectedCategory"
+        :model-value="selectedCategory"
         :items="categories"
         label="Фильтр по категориям"
         clearable
         variant="outlined"
         density="comfortable"
-        @update:model-value="$emit('update:selected-category', $event)"
+        @update:model-value="emit('update:selected-category', $event)"
       ></v-select>
     </v-col>
   </v-row>

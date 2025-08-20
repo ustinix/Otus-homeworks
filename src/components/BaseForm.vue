@@ -1,26 +1,12 @@
 <script setup lang="ts">
 const emit = defineEmits<{
-  (e: 'submit'): void;
+  (e: 'send'): void;
   (e: 'reset'): void;
 }>();
-const handleSubmit = () => {
-  console.log('BaseForm handleSubmit вызван');
-  emit('submit');
-};
-
-const handleReset = () => {
-  console.log('BaseForm handleReset вызван');
-  emit('reset');
-};
-
-defineExpose({
-  submit: handleSubmit,
-  reset: handleReset,
-});
 </script>
 
 <template>
-  <form class="base-form" @submit.prevent="handleSubmit">
+  <form class="base-form" @submit.prevent="emit('send')">
     <div class="form-header">
       <slot name="header">
         <h2>Форма</h2>
@@ -34,7 +20,7 @@ defineExpose({
     <div class="form-actions">
       <slot name="actions">
         <v-btn type="submit" color="primary">Отправить</v-btn>
-        <v-btn color="error" @click="handleReset">Сбросить</v-btn>
+        <v-btn color="error" @click="emit('reset')">Сбросить</v-btn>
       </slot>
     </div>
   </form>
