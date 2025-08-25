@@ -12,7 +12,7 @@ const email = useField<string>('email');
 const password = useField<string>('password');
 
 const { handleSubmit, resetForm } = useForm<LoginFormType>({
-  validationSchema: loginValidationSchema(),
+  validationSchema: loginValidationSchema,
 });
 
 const submit = handleSubmit(async values => {

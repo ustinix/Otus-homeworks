@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ProductForm from '../components/ProductForm.vue';
-import type { ProductFormData } from '../types/product';
 import { useProducts } from '../services/use-product';
+import type { Product } from '../types/product';
 
-const { products, getProducts, addProduct, isLoading, error } = useProducts();
+const { addProduct } = useProducts();
 
 const notification = ref({
   show: false,
