@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import type { FilterProps } from '../types/filterProps';
+defineProps<{
+  selectedCategory: string | null;
+  categories: string[];
+}>();
 
-defineProps<FilterProps>();
 const emit = defineEmits<{
   (e: 'update:selected-category', value: string | null): void;
 }>();
@@ -16,10 +18,15 @@ const emit = defineEmits<{
         clearable
         variant="outlined"
         density="comfortable"
+        class="filter-field"
         @update:model-value="emit('update:selected-category', $event)"
       ></v-select>
     </v-col>
   </v-row>
 </template>
 
-<style scoped></style>
+<style scoped>
+.filter-field {
+  max-width: 24%;
+}
+</style>

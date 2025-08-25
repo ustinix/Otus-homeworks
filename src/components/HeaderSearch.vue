@@ -28,32 +28,26 @@ watch(filteredProducts, newVal => {
 </script>
 
 <template>
-  <v-app-bar color="primary" prominent class="d-flex px-4">
-    <v-container class="d-flex align-center pa-0 px-6">
-      <v-toolbar-title class="custom-title">Магазин товаров</v-toolbar-title>
-
-      <v-spacer></v-spacer>
-
-      <v-text-field
-        v-model="searchQuery"
-        density="compact"
-        placeholder="Поиск по названию или цене"
-        prepend-inner-icon="mdi-magnify"
-        variant="outlined"
-        hide-details
-        class="search-field mx-2"
-        single-line
-      ></v-text-field>
-    </v-container>
-  </v-app-bar>
+  <v-container class="search-container">
+    <v-text-field
+      v-model="searchQuery"
+      placeholder="Поиск по названию или цене"
+      prepend-inner-icon="mdi-magnify"
+      variant="outlined"
+      hide-details
+      class="search-field"
+      density="comfortable"
+      single-line
+    ></v-text-field>
+  </v-container>
 </template>
 
 <style scoped>
-.custom-title {
-  flex: none !important;
-}
-.search-field {
-  width: 100%;
-  max-width: 500px;
+.search-container {
+  width: 310px;
+  min-width: 310px;
+  display: flex;
+  align-items: center;
+  padding: 0;
 }
 </style>

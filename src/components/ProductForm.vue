@@ -7,12 +7,7 @@ import type { Product } from '../types/product';
 import type { ProductFormValues } from '../types/forms';
 import { productValidationSchema } from '../utils/productValidation';
 
-defineProps<{
-  modelValue: boolean;
-}>();
-
 const emit = defineEmits<{
-  'update:modelValue': [value: boolean];
   created: [product: Product];
 }>();
 
@@ -49,18 +44,13 @@ const submit = async () => {
 
     if (newProduct) {
       emit('created', newProduct);
-      closeForm();
+      handleReset();
     }
   } catch (error) {
     console.error('Ошибка при создании товара:', error);
   } finally {
     isLoading.value = false;
   }
-};
-
-const closeForm = () => {
-  emit('update:modelValue', false);
-  handleReset();
 };
 
 const onFormReset = () => {
@@ -70,12 +60,7 @@ const onFormReset = () => {
 
 <template>
   <div>
-    <v-dialog
-      :model-value="modelValue"
-      max-width="600"
-      persistent
-      @update:model-value="$emit('update:modelValue', $event)"
-    >
+    <v-card class="form-container pa-6">
       <v-card>
         <base-form @send="submit" @reset="onFormReset">
           <template #header>
@@ -146,18 +131,22 @@ const onFormReset = () => {
           </template>
 
           <template #actions>
-            <v-btn color="error" :disabled="isLoading" @click="closeForm">Отмена</v-btn>
+            <v-btn color="error" :disabled="isLoading" @click="onFormReset">Отмена</v-btn>
             <v-btn color="primary" type="submit" :loading="isLoading" :disabled="isLoading">
               Создать
             </v-btn>
           </template>
         </base-form>
       </v-card>
-    </v-dialog>
+    </v-card>
   </div>
 </template>
 
 <style scoped>
+.form-container {
+  margin: 0 auto;
+  max-width: 700px;
+}
 .product-form {
   display: flex;
   flex-direction: column;
