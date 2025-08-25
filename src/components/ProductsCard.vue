@@ -1,28 +1,25 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import type { Product } from '../types/product';
-import DialogWindow from './DialogWindow.vue';
 import AppButton from './AppButton.vue';
 import { useCartStore } from '../stores/cart';
+import { useRouter } from 'vue-router';
 
 const cartStore = useCartStore();
+const router = useRouter();
 
 const props = defineProps<{
   products: Product[];
   selectedCategory?: string | null;
 }>();
 
-const dialog = ref(false);
-const selectedProduct = ref<Product | null>(null);
-
 const filteredProducts = computed(() => {
   if (!props.selectedCategory) return props.products;
   return props.products.filter(product => product.category === props.selectedCategory);
 });
 
-const showDetails = (product: Product) => {
-  selectedProduct.value = product;
-  dialog.value = true;
+const goToProductPage = (productId: number) => {
+  router.push({ name: 'product', params: { id: productId } });
 };
 
 const addToCart = (product: Product) => {
@@ -70,7 +67,7 @@ const addToCart = (product: Product) => {
           </v-card-text>
 
           <v-card-actions class="card-actions">
-            <app-button color="primary" variant="tonal" @click="showDetails(product)">
+            <app-button color="primary" variant="tonal" @click="goToProductPage(product.id)">
               Подробнее
             </app-button>
             <app-button color="primary" variant="tonal" @click="addToCart(product)">
@@ -80,7 +77,6 @@ const addToCart = (product: Product) => {
         </v-card>
       </v-col>
     </v-row>
-    <dialog-window v-model:is-open="dialog" :selected-product="selectedProduct" />
   </v-container>
 </template>
 <style lang="scss" scoped>

@@ -2,7 +2,7 @@
 import { useField, useForm } from 'vee-validate';
 import { ref } from 'vue';
 import BaseForm from './BaseForm.vue';
-import { productService } from '../services/product-service';
+import { useProducts } from '../services/use-product';
 import type { Product } from '../types/product';
 import type { ProductFormValues } from '../types/forms';
 import { productValidationSchema } from '../utils/productValidation';
@@ -40,7 +40,7 @@ const submit = async () => {
     },
   };
   try {
-    const newProduct = await productService().addProduct(productData);
+    const newProduct = await useProducts().addProduct(productData);
 
     if (newProduct) {
       emit('created', newProduct);

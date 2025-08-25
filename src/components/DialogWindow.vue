@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import type { DialogProps } from '../types/dialogProps';
+import type { Product } from '../types/product';
 import AppButton from './AppButton.vue';
 
-defineProps<DialogProps>();
+defineProps<{
+  selectedProduct: Product | null;
+  isOpen: boolean;
+}>();
 
 const emit = defineEmits<{
   (e: 'update:isOpen', value: boolean): void;

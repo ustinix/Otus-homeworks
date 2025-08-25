@@ -2,9 +2,9 @@
 import { ref } from 'vue';
 import ProductForm from '../components/ProductForm.vue';
 import type { ProductFormData } from '../types/product';
-import { productService } from '../services/product-service';
+import { useProducts } from '../services/use-product';
 
-const { products, getProducts, addProduct, isLoading, error } = productService();
+const { products, getProducts, addProduct, isLoading, error } = useProducts();
 
 const notification = ref({
   show: false,

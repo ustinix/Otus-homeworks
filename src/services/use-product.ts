@@ -4,7 +4,7 @@ import { ref } from 'vue';
 
 const API_URL = 'https://fakestoreapi.com/products';
 
-export function productService() {
+export function useProducts() {
   const products = ref<Product[]>([]);
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
@@ -57,5 +57,29 @@ export function productService() {
     getProducts,
     addProduct,
     deleteProduct,
+  };
+}
+
+export function useProduct() {
+  const product = ref<Product | null>(null);
+  const isLoading = ref(false);
+  const error = ref<Error | null>(null);
+
+  const getProduct = async (id: number): Promise<void> => {
+    const response = await fetch(`${API_URL}/${id}`);
+    if (!response.ok) throw new Error('Failed to fetch product');
+    product.value = await response.json();
+  };
+
+  const clearProduct = () => {
+    product.value = null;
+  };
+
+  return {
+    product,
+    isLoading,
+    error,
+    getProduct,
+    clearProduct,
   };
 }

@@ -44,7 +44,7 @@ watch(filteredProducts, newVal => {
 
 <style scoped>
 .search-container {
-  width: 310px;
+  max-width: 310px;
   min-width: 310px;
   display: flex;
   align-items: center;

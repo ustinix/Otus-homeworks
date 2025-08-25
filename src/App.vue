@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import HeaderMain from './components/HeaderMain.vue';
-import { productService } from './services/product-service';
+import { useProducts } from './services/use-product';
 import { onMounted, ref } from 'vue';
 import type { Product } from './types/product';
 import LoadingCircle from './components/LoadingCircle.vue';
 import ErrorTemplate from './components/ErrorTemplate.vue';
 
-const { products, getProducts, isLoading, error } = productService();
+const { products, getProducts, isLoading, error } = useProducts();
 const displayedProducts = ref<Product[]>([]);
 
 onMounted(async () => {
@@ -43,6 +43,7 @@ const reloadProducts = async () => {
 .app-container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   min-height: 100vh;
 }
 main {
