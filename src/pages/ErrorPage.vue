@@ -3,10 +3,7 @@
 <template>
   <div class="errorPage-container">
     <h2>Страница не существует</h2>
-    <v-btn to="/" color="primary" size="large">
-      <v-icon start>mdi-cart-arrow-right</v-icon>
-      Вернуться на главную
-    </v-btn>
+    <v-btn to="/" color="primary" size="large"> Вернуться на главную </v-btn>
   </div>
 </template>
 
