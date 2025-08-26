@@ -10,11 +10,11 @@ import CartPage from '../pages/CartPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   { path: '/', name: 'main', component: MainPage }, //Главная страница
-  { path: '/checkout', name: 'checkout', component: CheckoutPage }, //страница чекаута(форма заказа)
-  { path: '/login', name: 'login', component: LoginPage }, //форма логина
-  { path: '/user', name: 'user', component: UserPage }, //страница добавления товара (простой аналог админки)
-  { path: '/cart', name: 'cart', component: CartPage }, //список товаров в корзине
-  { path: '/product/:id', name: 'product', component: ProductPage, props: true }, //страница товара
+  { path: '/checkout', name: 'checkout', component: CheckoutPage },
+  { path: '/login', name: 'login', component: LoginPage },
+  { path: '/user', name: 'user', component: UserPage },
+  { path: '/cart', name: 'cart', component: CartPage },
+  { path: '/product/:id', name: 'product', component: ProductPage, props: true },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: ErrorPage },
 ];
 
