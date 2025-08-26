@@ -9,7 +9,7 @@ import ProductPage from '../pages/ProductPage.vue';
 import CartPage from '../pages/CartPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
-  { path: '/', name: 'main', component: MainPage }, //Главная страница
+  { path: '/', name: 'main', component: MainPage },
   { path: '/checkout', name: 'checkout', component: CheckoutPage },
   { path: '/login', name: 'login', component: LoginPage },
   { path: '/user', name: 'user', component: UserPage },
