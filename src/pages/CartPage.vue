@@ -27,9 +27,32 @@ const cartStore = useCartStore();
             <h3 class="text-h6 font-weight-medium item-title">{{ item.product.title }}</h3>
             <p class="text-caption text-grey item-category">{{ item.product.category }}</p>
           </div>
+          <div class="item-quantity-section">
+            <v-btn
+              icon
+              variant="text"
+              color="error"
+              size="small"
+              @click="cartStore.decrementQuantity(item.product.id)"
+            >
+              <v-icon>mdi-minus</v-icon>
+            </v-btn>
+            <span class="text-h6 font-weight-bold primary--text">
+              {{ item.quantity }}
+            </span>
+            <v-btn
+              icon
+              variant="text"
+              color="green"
+              size="small"
+              @click="cartStore.incrementQuantity(item.product.id)"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </div>
           <div class="item-price-section">
             <span class="text-h6 font-weight-bold primary--text">
-              {{ item.product.price.toFixed(2) }} руб.
+              {{ (item.product.price * item.quantity).toFixed(2) }} руб.
             </span>
           </div>
           <v-btn

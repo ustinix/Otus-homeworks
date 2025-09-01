@@ -68,6 +68,24 @@ export const useCartStore = defineStore('cart', () => {
     return items.value.some(item => item.product.id === productId);
   };
 
+  const incrementQuantity = (productId: number) => {
+    const item = items.value.find(item => item.product.id === productId);
+    if (item) {
+      item.quantity++;
+    }
+  };
+
+  const decrementQuantity = (productId: number) => {
+    const item = items.value.find(item => item.product.id === productId);
+    if (item) {
+      item.quantity--;
+
+      if (item.quantity === 0) {
+        removeFromCart(productId);
+      }
+    }
+  };
+
   return {
     items,
     totalItems,
@@ -79,5 +97,7 @@ export const useCartStore = defineStore('cart', () => {
     isInCart,
     loadFromStorage,
     saveToStorage,
+    incrementQuantity,
+    decrementQuantity,
   };
 });

@@ -25,6 +25,11 @@ const goToProductPage = (productId: number) => {
 const addToCart = (product: Product) => {
   cartStore.addToCart(product);
 };
+
+const getProductQuantity = (productId: number) => {
+  const cartItem = cartStore.items.find(item => item.product.id === productId);
+  return cartItem ? cartItem.quantity : 0;
+};
 </script>
 <template>
   <v-container class="products-container">
@@ -71,7 +76,11 @@ const addToCart = (product: Product) => {
               Подробнее
             </app-button>
             <app-button color="primary" variant="tonal" @click="addToCart(product)">
-              В корзину
+              {{
+                getProductQuantity(product.id) > 0
+                  ? `В корзине (${getProductQuantity(product.id)})`
+                  : 'В корзину'
+              }}
             </app-button>
           </v-card-actions>
         </v-card>

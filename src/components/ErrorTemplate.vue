@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="error-container">
     <v-alert type="error" prominent>
       <v-row align="center">
         <v-col class="grow"> Ошибка загрузки: {{ error.message }} </v-col>
@@ -18,4 +18,8 @@ defineProps<{
 }>();
 </script>
 
-<style scoped></style>
+<style scoped>
+.error-container {
+  margin: auto 0;
+}
+</style>

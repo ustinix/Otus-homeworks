@@ -39,7 +39,7 @@ onUnmounted(() => {
 });
 
 const navLinks = computed<NavLink[]>(() => {
-  const links: NavLink[] = [{ to: '/', text: 'Главная' }];
+  const links: NavLink[] = [{ to: '/', text: 'Каталог' }];
 
   if (!user.value?.isLoggedIn) {
     links.push({ to: '/login', text: 'Войти' });
