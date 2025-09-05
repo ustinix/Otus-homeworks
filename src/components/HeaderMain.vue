@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import dividerLine from './DividerLine.vue';
 import HeaderSearch from './HeaderSearch.vue';
 import type { Product } from '../types/product';
 import type { User } from '../types/user';
 import type { NavLink } from '../types/navlink';
 import { useCartStore } from '../stores/cart';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
 
 const cartStore = useCartStore();
 
@@ -79,6 +82,14 @@ const handleSearchUpdate = (filteredProducts: Product[]) => {
 defineExpose({
   updateUser: loadUserData,
 });
+
+watch(
+  () => route.path,
+  () => {
+    loadUserData();
+  },
+  { immediate: true },
+);
 </script>
 <template>
   <div class="header">
@@ -91,7 +102,7 @@ defineExpose({
       <div class="tools">
         <div>
           <div v-if="user?.isLoggedIn" class="user-info">
-            <span class="user-login">Пользователь: {{ user.login }}</span>
+            <span class="user-login" data-test="user-profile">Пользователь: {{ user.login }}</span>
           </div>
           <header-search :products="props.products" @update:filtered="handleSearchUpdate" />
         </div>

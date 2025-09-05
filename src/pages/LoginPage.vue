@@ -35,11 +35,13 @@ const {
   errorMessage: loginError,
   handleBlur: loginValidate,
 } = useField('login', validateLogin);
+
 const {
   value: emailValue,
   errorMessage: emailError,
   handleBlur: emailValidate,
 } = useField('email', validateEmail);
+
 const {
   value: passwordValue,
   errorMessage: passwordError,
@@ -71,7 +73,12 @@ const submit = () => {
     alert(
       `Добро пожаловать ${formData.login}. ${formData.isAdmin ? 'Вы вошли как администратор.' : ''}`,
     );
-    router.push('/');
+
+    if (formData.isAdmin) {
+      router.push('/admin');
+    } else {
+      router.push('/');
+    }
   }
 };
 
@@ -97,6 +104,7 @@ const onFormReset = () => {
         <template #body>
           <v-text-field
             v-model="loginValue"
+            data-test="username"
             :error-messages="loginError"
             label="Login"
             required
@@ -105,6 +113,7 @@ const onFormReset = () => {
 
           <v-text-field
             v-model="emailValue"
+            data-test="email"
             :error-messages="emailError"
             label="Email"
             type="email"
@@ -114,6 +123,7 @@ const onFormReset = () => {
 
           <v-text-field
             v-model="passwordValue"
+            data-test="password"
             :error-messages="passwordError"
             label="Password"
             type="password"
@@ -121,12 +131,17 @@ const onFormReset = () => {
             @blur="passwordValidate"
           ></v-text-field>
 
-          <v-checkbox v-model="isAdmin" label="Я админ" color="primary"></v-checkbox>
+          <v-checkbox
+            v-model="isAdmin"
+            label="Я админ"
+            color="primary"
+            data-test="admin"
+          ></v-checkbox>
         </template>
 
         <template #actions>
-          <v-btn color="error" @click="onFormReset">Очистить</v-btn>
-          <v-btn color="primary" type="submit"> Войти </v-btn>
+          <v-btn data-test="reset-btn" color="error" @click="onFormReset">Очистить</v-btn>
+          <v-btn data-test="submit-btn" color="primary" type="submit"> Войти </v-btn>
         </template>
       </base-form>
     </v-card>

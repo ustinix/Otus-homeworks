@@ -56,7 +56,7 @@ const getProductQuantity = (productId: number) => {
           </v-img>
 
           <v-card-text class="flex-grow-1">
-            <div class="text-subtitle-1 mb-2">${{ product.price }}</div>
+            <div class="text-subtitle-1 mb-2">${{ product.price.toFixed(2) }}</div>
             <div class="text-caption text-grey mb-2">{{ product.category }}</div>
             <div class="d-flex align-center justify-center">
               <v-rating

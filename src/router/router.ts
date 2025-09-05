@@ -12,7 +12,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/', name: 'main', component: MainPage },
   { path: '/checkout', name: 'checkout', component: CheckoutPage, meta: { requiresAuth: true } },
   { path: '/login', name: 'login', component: LoginPage },
-  { path: '/user', name: 'user', component: UserPage, meta: { requiresAdmin: true } },
+  { path: '/admin', name: 'admin', component: UserPage, meta: { requiresAdmin: true } },
   { path: '/cart', name: 'cart', component: CartPage },
   { path: '/product/:id', name: 'product', component: ProductPage, props: true },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: ErrorPage },
