@@ -1,3 +1,3 @@
 # Otus homeworks (Vue course)
 
-## Deploy link: [otus-task-5](https://otus-task-5.netlify.app/)
+## Deploy link: [otus-task-6](https://otus-task-6.netlify.app/)
