@@ -9,7 +9,7 @@ const cartStore = useCartStore();
   <div class="cart-container">
     <h2 class="text-h4 font-weight-bold mb-6">Корзина</h2>
     <div v-if="cartStore.totalItems === 0" class="empty-cart">
-      <p>Ваша корзина пуста</p>
+      <p data-test="emptyCartMess">Ваша корзина пуста</p>
     </div>
     <v-list v-else class="cart-list">
       <v-list-item v-for="item in cartStore.items" :key="item.product.id" class="cart-item">
@@ -33,11 +33,12 @@ const cartStore = useCartStore();
               variant="text"
               color="error"
               size="small"
+              data-test="minusBtn"
               @click="cartStore.decrementQuantity(item.product.id)"
             >
               <v-icon>mdi-minus</v-icon>
             </v-btn>
-            <span class="text-h6 font-weight-bold primary--text">
+            <span data-test="quantity" class="text-h6 font-weight-bold primary--text">
               {{ item.quantity }}
             </span>
             <v-btn
@@ -45,6 +46,7 @@ const cartStore = useCartStore();
               variant="text"
               color="green"
               size="small"
+              data-test="plusBtn"
               @click="cartStore.incrementQuantity(item.product.id)"
             >
               <v-icon>mdi-plus</v-icon>
@@ -60,6 +62,7 @@ const cartStore = useCartStore();
             variant="text"
             color="error"
             size="small"
+            data-test="deleteBtn"
             @click="cartStore.removeFromCart(item.product.id)"
           >
             <v-icon>mdi-delete</v-icon>
