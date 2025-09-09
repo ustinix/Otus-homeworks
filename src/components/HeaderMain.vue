@@ -1,56 +1,43 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import dividerLine from './DividerLine.vue';
 import HeaderSearch from './HeaderSearch.vue';
 import type { Product } from '../types/product';
-import type { User } from '../types/user';
 import type { NavLink } from '../types/navlink';
 import { useCartStore } from '../stores/cart';
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
+import { useUserStore } from '../stores/user';
 
 const cartStore = useCartStore();
+const userStore = useUserStore();
 
 const props = defineProps<{
   products: Product[];
 }>();
 
-const user = ref<User | null>(null);
-
-const loadUserData = () => {
-  const userData = localStorage.getItem('user');
-  if (userData) {
-    try {
-      user.value = JSON.parse(userData);
-    } catch (error) {
-      console.error('Ошибка при чтении данных пользователя:', error);
-      user.value = null;
-    }
-  } else {
-    user.value = null;
-  }
-};
-
 onMounted(() => {
-  loadUserData();
-  window.addEventListener('storage', loadUserData);
+  window.addEventListener('storage', handleStorageChange);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('storage', loadUserData);
+  window.removeEventListener('storage', handleStorageChange);
 });
+
+const handleStorageChange = (event: StorageEvent) => {
+  if (event.key === 'user') {
+    userStore.loadUserFromStorage();
+  }
+};
 
 const navLinks = computed<NavLink[]>(() => {
   const links: NavLink[] = [{ to: '/', text: 'Каталог' }];
 
-  if (!user.value?.isLoggedIn) {
+  if (!userStore.isLoggedIn) {
     links.push({ to: '/login', text: 'Войти' });
   } else {
     links.push({ to: '/logout', text: 'Выйти', action: 'logout' });
   }
 
-  if (user.value?.isLoggedIn) {
+  if (userStore.isLoggedIn) {
     links.push({ to: '/checkout', text: 'Оформить заказ' });
   }
 
@@ -58,8 +45,7 @@ const navLinks = computed<NavLink[]>(() => {
 });
 
 const logout = () => {
-  localStorage.removeItem('user');
-  user.value = null;
+  userStore.logout();
   if (window.location.pathname !== '/') {
     window.location.href = '/';
   }
@@ -78,18 +64,6 @@ const emit = defineEmits<{
 const handleSearchUpdate = (filteredProducts: Product[]) => {
   emit('search-update', filteredProducts);
 };
-
-defineExpose({
-  updateUser: loadUserData,
-});
-
-watch(
-  () => route.path,
-  () => {
-    loadUserData();
-  },
-  { immediate: true },
-);
 </script>
 <template>
   <div class="header">
@@ -101,8 +75,10 @@ watch(
       </div>
       <div class="tools">
         <div>
-          <div v-if="user?.isLoggedIn" class="user-info">
-            <span class="user-login" data-test="user-profile">Пользователь: {{ user.login }}</span>
+          <div v-if="userStore.isLoggedIn" class="user-info">
+            <span class="user-login" data-test="user-profile">
+              Пользователь: {{ userStore.user?.login }}
+            </span>
           </div>
           <header-search :products="props.products" @update:filtered="handleSearchUpdate" />
         </div>

@@ -3,7 +3,10 @@ import { useField } from 'vee-validate';
 import BaseForm from '../components/BaseForm.vue';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { useUserStore } from '../stores/user';
+import type { User } from '../types/user';
 
+const userStore = useUserStore();
 const router = useRouter();
 const isAdmin = ref(false);
 
@@ -54,21 +57,13 @@ const submit = () => {
   passwordValidate();
 
   if (!loginError.value && !emailError.value && !passwordError.value) {
-    const formData = {
-      login: loginValue.value,
-      email: emailValue.value,
-      password: passwordValue.value,
+    const formData: User = {
+      login: String(loginValue.value),
+      email: String(emailValue.value),
       isAdmin: isAdmin.value,
+      isLoggedIn: true,
     };
-    localStorage.setItem(
-      'user',
-      JSON.stringify({
-        login: formData.login,
-        email: formData.email,
-        isAdmin: formData.isAdmin,
-        isLoggedIn: true,
-      }),
-    );
+    userStore.setUser(formData);
 
     alert(
       `Добро пожаловать ${formData.login}. ${formData.isAdmin ? 'Вы вошли как администратор.' : ''}`,
