@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { useProduct } from '../services/use-product';
+import { useProductStore } from '../stores/product';
 import { useRouter } from 'vue-router';
 import AppButton from '../components/AppButton.vue';
 import { useCartStore } from '../stores/cart';
 import { onMounted, watch } from 'vue';
 import LoadingCircle from '../components/LoadingCircle.vue';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
   id: string;
@@ -12,7 +13,9 @@ const props = defineProps<{
 
 const router = useRouter();
 const cartStore = useCartStore();
-const { product, isLoading, error, getProduct } = useProduct();
+const productStore = useProductStore();
+const { product, isLoading, error } = storeToRefs(productStore);
+const { getProduct } = productStore;
 
 onMounted(() => {
   if (props.id) {

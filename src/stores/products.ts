@@ -1,13 +1,22 @@
+import { defineStore } from 'pinia';
 import axios from 'axios';
 import type { Product } from '../types/product';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const API_URL = 'https://fakestoreapi.com/products';
 
-export function useProducts() {
+export const useProductsStore = defineStore('products', () => {
   const products = ref<Product[]>([]);
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
+
+  const getProductById = computed(() => (id: number) => {
+    return products.value.find(product => product.id === id);
+  });
+
+  const getProductsByCategory = computed(() => (category: string) => {
+    return products.value.filter(product => product.category === category);
+  });
 
   const getProducts = async (): Promise<void> => {
     isLoading.value = true;
@@ -23,10 +32,10 @@ export function useProducts() {
     }
   };
 
-  const addProduct = async (product: Omit<Product, 'id'>): Promise<Product | void> => {
+  const addProduct = async (productData: Omit<Product, 'id'>): Promise<Product | void> => {
     isLoading.value = true;
     try {
-      const { data } = await axios.post<Product>(API_URL, product);
+      const { data } = await axios.post<Product>(API_URL, productData);
       products.value.push(data);
       return data;
     } catch (err) {
@@ -54,32 +63,12 @@ export function useProducts() {
     products,
     isLoading,
     error,
+
+    getProductById,
+    getProductsByCategory,
+
     getProducts,
     addProduct,
     deleteProduct,
   };
-}
-
-export function useProduct() {
-  const product = ref<Product | null>(null);
-  const isLoading = ref(false);
-  const error = ref<Error | null>(null);
-
-  const getProduct = async (id: number): Promise<void> => {
-    const response = await fetch(`${API_URL}/${id}`);
-    if (!response.ok) throw new Error('Failed to fetch product');
-    product.value = await response.json();
-  };
-
-  const clearProduct = () => {
-    product.value = null;
-  };
-
-  return {
-    product,
-    isLoading,
-    error,
-    getProduct,
-    clearProduct,
-  };
-}
+});

@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import HeaderMain from './components/HeaderMain.vue';
-import { useProducts } from './services/use-product';
+import { useProductsStore } from './stores/products';
 import { onMounted, ref } from 'vue';
 import type { Product } from './types/product';
 import LoadingCircle from './components/LoadingCircle.vue';
 import ErrorTemplate from './components/ErrorTemplate.vue';
+import { storeToRefs } from 'pinia';
 
-const { products, getProducts, isLoading, error } = useProducts();
+const productsStore = useProductsStore();
+const { products, isLoading, error } = storeToRefs(productsStore);
+const { getProducts } = productsStore;
+
 const displayedProducts = ref<Product[]>([]);
 
 onMounted(async () => {
