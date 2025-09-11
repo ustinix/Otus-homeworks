@@ -18,12 +18,32 @@ export const useProductsStore = defineStore('products', () => {
     return products.value.filter(product => product.category === category);
   });
 
+  const updateProducts = (newProducts: Product[]): void => {
+    products.value.splice(0, products.value.length, ...newProducts);
+  };
+
+  const addProductToStore = (product: Product): void => {
+    const index = products.value.findIndex(p => p.id === product.id);
+    if (index === -1) {
+      products.value.push(product);
+    } else {
+      products.value.splice(index, 1, product);
+    }
+  };
+
+  const removeProductFromStore = (id: number): void => {
+    const index = products.value.findIndex(product => product.id === id);
+    if (index !== -1) {
+      products.value.splice(index, 1);
+    }
+  };
+
   const getProducts = async (): Promise<void> => {
     isLoading.value = true;
     error.value = null;
     try {
       const { data } = await axios.get<Product[]>(API_URL);
-      products.value = data;
+      updateProducts(data);
     } catch (err) {
       error.value = err as Error;
       console.error('Ошибка при загрузке товаров:', err);
@@ -36,7 +56,7 @@ export const useProductsStore = defineStore('products', () => {
     isLoading.value = true;
     try {
       const { data } = await axios.post<Product>(API_URL, productData);
-      products.value.push(data);
+      addProductToStore(data);
       return data;
     } catch (err) {
       error.value = err as Error;
@@ -50,7 +70,7 @@ export const useProductsStore = defineStore('products', () => {
     isLoading.value = true;
     try {
       await axios.delete(`${API_URL}/${id}`);
-      products.value = products.value.filter(product => product.id !== id);
+      removeProductFromStore(id);
     } catch (err) {
       error.value = err as Error;
       console.error(`Ошибка при удалении товара с ID ${id}:`, err);
