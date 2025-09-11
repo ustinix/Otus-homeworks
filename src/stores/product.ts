@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import axios from 'axios';
 import { ref } from 'vue';
 import type { Product } from '../types/product';
 
@@ -13,9 +14,8 @@ export const useProductStore = defineStore('product', () => {
     isLoading.value = true;
     error.value = null;
     try {
-      const response = await fetch(`${API_URL}/${id}`);
-      if (!response.ok) throw new Error('Failed to fetch product');
-      product.value = await response.json();
+      const { data } = await axios.get<Product>(`${API_URL}/${id}`);
+      product.value = data;
     } catch (err) {
       error.value = err as Error;
       console.error(`Ошибка при загрузке товара ${id}:`, err);
@@ -24,16 +24,10 @@ export const useProductStore = defineStore('product', () => {
     }
   };
 
-  const clearProduct = (): void => {
-    product.value = null;
-    error.value = null;
-  };
-
   return {
     product,
     isLoading,
     error,
     getProduct,
-    clearProduct,
   };
 });

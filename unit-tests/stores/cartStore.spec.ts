@@ -44,21 +44,29 @@ describe('cart store', () => {
   };
 
   beforeEach(() => {
-    setActivePinia(createPinia());
-    store = useCartStore();
+    localStorageMock.getItem.mockReturnValue(null);
 
+    const pinia = createPinia();
+    setActivePinia(pinia);
+
+    store = useCartStore();
     store.clearCart();
 
     vi.clearAllMocks();
+    vi.spyOn(store, 'loadFromStorage').mockResolvedValue();
+  });
 
-    localStorageMock.getItem.mockReset();
-    localStorageMock.setItem.mockReset();
-    localStorageMock.clear.mockReset();
+  describe('init cart', () => {
+    it('should have empty cart initially', () => {
+      expect(store.items).toHaveLength(0);
+      expect(store.totalItems).toBe(0);
+      expect(store.totalPrice).toBe(0);
+    });
   });
 
   describe('addToCart', () => {
-    it('add new product in cart', () => {
-      store.addToCart(mockProduct);
+    it('add new product in cart', async () => {
+      await store.addToCart(mockProduct);
 
       expect(store.items).toHaveLength(1);
       expect(store.items[0].product).toEqual(mockProduct);
@@ -66,47 +74,105 @@ describe('cart store', () => {
       expect(localStorageMock.setItem).toHaveBeenCalledWith('cart', expect.any(String));
     });
 
-    it('increase product quantity', () => {
-      store.addToCart(mockProduct);
+    it('increase product quantity', async () => {
+      await store.addToCart(mockProduct);
 
-      store.addToCart(mockProduct);
+      await store.addToCart(mockProduct);
 
       expect(store.items).toHaveLength(1);
       expect(store.items[0].quantity).toBe(2);
     });
   });
   describe('computed properties', () => {
-    it('calculating the total amount products', () => {
-      store.addToCart(mockProduct);
-      store.addToCart(mockProduct);
-      store.addToCart(mockProduct2);
+    it('calculating the total amount products', async () => {
+      await store.addToCart(mockProduct);
+      await store.addToCart(mockProduct);
+      await store.addToCart(mockProduct2);
 
       expect(store.totalItems).toBe(3);
     });
 
-    it('calculating the total summ', () => {
-      store.addToCart(mockProduct);
-      store.addToCart(mockProduct);
-      store.addToCart(mockProduct2);
+    it('calculating the total summ', async () => {
+      await store.addToCart(mockProduct);
+      await store.addToCart(mockProduct);
+      await store.addToCart(mockProduct2);
 
       expect(store.totalPrice).toBe(400);
     });
-  });
-  describe('quantity methods', () => {
-    it('incrementQuantity increase quantity', () => {
-      store.addToCart(mockProduct);
 
-      store.incrementQuantity(1);
+    it('should return zero for empty cart', () => {
+      expect(store.totalItems).toBe(0);
+      expect(store.totalPrice).toBe(0);
+    });
+  });
+  describe('remove from cart', () => {
+    it('should remove product cart', async () => {
+      await store.addToCart(mockProduct);
+      await store.addToCart(mockProduct2);
+
+      expect(store.items).toHaveLength(2);
+
+      await store.removeFromCart(1);
+
+      expect(store.items).toHaveLength(1);
+      expect(store.items[0].product.id).toBe(2);
+    });
+  });
+  describe('updateQuantity', () => {
+    it('should update quantity correctly', async () => {
+      await store.addToCart(mockProduct);
+      await store.updateQuantity(1, 5);
+
+      expect(store.items[0].quantity).toBe(5);
+    });
+    it('should remove product when quantity is zero', async () => {
+      await store.addToCart(mockProduct);
+      await store.updateQuantity(1, 0);
+
+      expect(store.items).toHaveLength(0);
+    });
+  });
+  describe('incrementQuantity', () => {
+    it('incrementQuantity should increase quantity', async () => {
+      await store.addToCart(mockProduct);
+
+      await store.incrementQuantity(1);
 
       expect(store.items[0].quantity).toBe(2);
     });
-
-    it('decrementQuantity decrease quantity and delete if quantity equally 0', () => {
-      store.addToCart(mockProduct);
-
-      store.decrementQuantity(1);
-
+  });
+  describe('decrementQuantity', () => {
+    it('decrementQuantity should decrease quantity', async () => {
+      await store.addToCart(mockProduct);
+      await store.addToCart(mockProduct);
+      await store.decrementQuantity(1);
+      expect(store.items[0].quantity).toBe(1);
+    });
+    it('should remove product when quantity zero', async () => {
+      await store.addToCart(mockProduct);
+      await store.decrementQuantity(1);
       expect(store.items).toHaveLength(0);
+    });
+  });
+  describe('clearCart', () => {
+    it('should remove all products', async () => {
+      await store.addToCart(mockProduct);
+      await store.addToCart(mockProduct2);
+      expect(store.items).toHaveLength(2);
+      await store.clearCart();
+      expect(store.items).toHaveLength(0);
+      expect(localStorageMock.setItem).toHaveBeenCalledWith('cart', '[]');
+    });
+  });
+
+  describe('isInCart', () => {
+    it('should return true if product is in cart', async () => {
+      await store.addToCart(mockProduct);
+      expect(store.isInCart(1)).toBe(true);
+    });
+
+    it('should return false if product is not in cart', () => {
+      expect(store.isInCart(999)).toBe(false);
     });
   });
 });

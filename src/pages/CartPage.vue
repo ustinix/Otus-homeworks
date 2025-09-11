@@ -1,85 +1,98 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import DividerLine from '../components/DividerLine.vue';
 import { useCartStore } from '../stores/cart';
+import LoadingCircle from '../components/LoadingCircle.vue';
+import ErrorTemplate from '../components/ErrorTemplate.vue';
 
 const cartStore = useCartStore();
+const { items, totalItems, totalPrice, isLoading, error } = storeToRefs(cartStore);
+const { loadFromStorage, decrementQuantity, incrementQuantity, removeFromCart } = cartStore;
+
+const reloadCart = async () => {
+  await loadFromStorage();
+};
 </script>
 
 <template>
   <div class="cart-container">
-    <h2 class="text-h4 font-weight-bold mb-6">Корзина</h2>
-    <div v-if="cartStore.totalItems === 0" class="empty-cart">
-      <p data-test="emptyCartMess">Ваша корзина пуста</p>
-    </div>
-    <v-list v-else class="cart-list">
-      <v-list-item v-for="item in cartStore.items" :key="item.product.id" class="cart-item">
-        <div class="item-content">
-          <div class="image-container">
-            <v-img
-              :src="item.product.image"
-              :aspect-ratio="1"
-              width="80"
-              contain
-              class="item-image"
-            ></v-img>
-          </div>
-          <div class="item-details">
-            <h3 class="text-h6 font-weight-medium item-title">{{ item.product.title }}</h3>
-            <p class="text-caption text-grey item-category">{{ item.product.category }}</p>
-          </div>
-          <div class="item-quantity-section">
+    <loading-circle v-if="isLoading" />
+    <error-template v-else-if="error" :error="error" :event="reloadCart" />
+    <template v-else>
+      <h2 class="text-h4 font-weight-bold mb-6">Корзина</h2>
+      <div v-if="totalItems === 0" class="empty-cart">
+        <p data-test="emptyCartMess">Ваша корзина пуста</p>
+      </div>
+      <v-list v-else class="cart-list">
+        <v-list-item v-for="item in items" :key="item.product.id" class="cart-item">
+          <div class="item-content">
+            <div class="image-container">
+              <v-img
+                :src="item.product.image"
+                :aspect-ratio="1"
+                width="80"
+                contain
+                class="item-image"
+              ></v-img>
+            </div>
+            <div class="item-details">
+              <h3 class="text-h6 font-weight-medium item-title">{{ item.product.title }}</h3>
+              <p class="text-caption text-grey item-category">{{ item.product.category }}</p>
+            </div>
+            <div class="item-quantity-section">
+              <v-btn
+                icon
+                variant="text"
+                color="error"
+                size="small"
+                data-test="minusBtn"
+                @click="decrementQuantity(item.product.id)"
+              >
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+              <span data-test="quantity" class="text-h6 font-weight-bold primary--text">
+                {{ item.quantity }}
+              </span>
+              <v-btn
+                icon
+                variant="text"
+                color="green"
+                size="small"
+                data-test="plusBtn"
+                @click="incrementQuantity(item.product.id)"
+              >
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </div>
+            <div class="item-price-section">
+              <span class="text-h6 font-weight-bold primary--text">
+                {{ (item.product.price * item.quantity).toFixed(2) }} руб.
+              </span>
+            </div>
             <v-btn
               icon
               variant="text"
               color="error"
               size="small"
-              data-test="minusBtn"
-              @click="cartStore.decrementQuantity(item.product.id)"
+              data-test="deleteBtn"
+              @click="removeFromCart(item.product.id)"
             >
-              <v-icon>mdi-minus</v-icon>
-            </v-btn>
-            <span data-test="quantity" class="text-h6 font-weight-bold primary--text">
-              {{ item.quantity }}
-            </span>
-            <v-btn
-              icon
-              variant="text"
-              color="green"
-              size="small"
-              data-test="plusBtn"
-              @click="cartStore.incrementQuantity(item.product.id)"
-            >
-              <v-icon>mdi-plus</v-icon>
+              <v-icon>mdi-delete</v-icon>
             </v-btn>
           </div>
-          <div class="item-price-section">
-            <span class="text-h6 font-weight-bold primary--text">
-              {{ (item.product.price * item.quantity).toFixed(2) }} руб.
-            </span>
-          </div>
-          <v-btn
-            icon
-            variant="text"
-            color="error"
-            size="small"
-            data-test="deleteBtn"
-            @click="cartStore.removeFromCart(item.product.id)"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
+          <divider-line />
+        </v-list-item>
+      </v-list>
+      <div v-if="totalItems > 0" class="checkout-section">
+        <div class="total-price">
+          <h3 class="text-h5">Итого: {{ totalPrice.toFixed(2) }} руб.</h3>
         </div>
-        <divider-line />
-      </v-list-item>
-    </v-list>
-    <div v-if="cartStore.totalItems > 0" class="checkout-section">
-      <div class="total-price">
-        <h3 class="text-h5">Итого: {{ cartStore.totalPrice.toFixed(2) }} руб.</h3>
+        <v-btn to="/checkout" color="primary" size="large" class="checkout-btn">
+          <v-icon start>mdi-cart-arrow-right</v-icon>
+          Оформить заказ
+        </v-btn>
       </div>
-      <v-btn to="/checkout" color="primary" size="large" class="checkout-btn">
-        <v-icon start>mdi-cart-arrow-right</v-icon>
-        Оформить заказ
-      </v-btn>
-    </div>
+    </template>
   </div>
 </template>
 
