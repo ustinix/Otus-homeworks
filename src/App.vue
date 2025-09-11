@@ -29,8 +29,8 @@ const reloadProducts = async () => {
 
 <template>
   <v-app class="app-container">
-    <LoadingCircle v-if="isLoading" />
-    <ErrorTemplate v-else-if="error" :error="error" :event="reloadProducts" />
+    <loading-circle v-if="isLoading" />
+    <error-template v-else-if="error" :error="error" :event="reloadProducts" />
     <template v-else>
       <header-main :products="products" @search-update="handleSearchUpdate" />
       <main>

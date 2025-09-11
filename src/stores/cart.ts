@@ -28,14 +28,19 @@ export const useCartStore = defineStore('cart', () => {
   });
 
   const addToCart = (product: Product) => {
-    const existingItem = items.value.find(item => item.product.id === product.id);
-    if (existingItem) {
-      existingItem.quantity += 1;
+    const existingItemIndex = items.value.findIndex(item => item.product.id === product.id);
+    if (existingItemIndex !== -1) {
+      items.value = items.value.map((item, index) =>
+        index === existingItemIndex ? { ...item, quantity: item.quantity + 1 } : item,
+      );
     } else {
-      items.value.push({
-        product,
-        quantity: 1,
-      });
+      items.value = [
+        ...items.value,
+        {
+          product,
+          quantity: 1,
+        },
+      ];
     }
     saveToStorage();
   };
@@ -46,13 +51,15 @@ export const useCartStore = defineStore('cart', () => {
   };
 
   const updateQuantity = (productId: number, quantity: number) => {
-    const item = items.value.find(item => item.product.id === productId);
+    const itemIndex = items.value.findIndex(item => item.product.id === productId);
 
-    if (item) {
-      if (quantity <= 0) {
+    if (itemIndex !== -1) {
+      if (quantity === 0) {
         removeFromCart(productId);
       } else {
-        item.quantity = quantity;
+        items.value = items.value.map((item, index) =>
+          index === itemIndex ? { ...item, quantity: quantity } : item,
+        );
       }
 
       saveToStorage();
@@ -69,19 +76,28 @@ export const useCartStore = defineStore('cart', () => {
   };
 
   const incrementQuantity = (productId: number) => {
-    const item = items.value.find(item => item.product.id === productId);
-    if (item) {
-      item.quantity++;
+    const itemIndex = items.value.findIndex(item => item.product.id === productId);
+    if (itemIndex !== -1) {
+      items.value = items.value.map((item, index) =>
+        index === itemIndex ? { ...item, quantity: item.quantity + 1 } : item,
+      );
     }
+    saveToStorage();
   };
 
   const decrementQuantity = (productId: number) => {
-    const item = items.value.find(item => item.product.id === productId);
-    if (item) {
-      item.quantity--;
+    const itemIndex = items.value.findIndex(item => item.product.id === productId);
+    const decrementStep = 1;
+    if (itemIndex !== -1) {
+      const newQuantity = items.value[itemIndex].quantity - decrementStep;
 
-      if (item.quantity === 0) {
+      if (newQuantity === 0) {
         removeFromCart(productId);
+      } else {
+        items.value = items.value.map((item, index) =>
+          index === itemIndex ? { ...item, quantity: newQuantity } : item,
+        );
+        saveToStorage();
       }
     }
   };

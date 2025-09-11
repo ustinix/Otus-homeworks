@@ -6,6 +6,7 @@ import { computed, ref } from 'vue';
 const API_URL = 'https://fakestoreapi.com/products';
 
 export const useProductsStore = defineStore('products', () => {
+  const product = ref<Product | null>(null);
   const products = ref<Product[]>([]);
   const isLoading = ref(false);
   const error = ref<Error | null>(null);

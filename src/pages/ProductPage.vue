@@ -6,6 +6,7 @@ import { useCartStore } from '../stores/cart';
 import { onMounted, watch } from 'vue';
 import LoadingCircle from '../components/LoadingCircle.vue';
 import { storeToRefs } from 'pinia';
+import ErrorTemplate from '../components/ErrorTemplate.vue';
 
 const props = defineProps<{
   id: string;
@@ -49,7 +50,7 @@ const goBack = () => {
       <app-button class="mb-4" variant="outlined" @click="goBack"> ← Назад к каталогу </app-button>
 
       <loading-circle v-if="isLoading" type="card, article, actions"></loading-circle>
-      <ErrorTemplate v-else-if="error" :error="error" :event="() => getProduct(parseInt(id))" />
+      <error-template v-else-if="error" :error="error" :event="() => getProduct(parseInt(id))" />
 
       <v-card v-else-if="product" elevation="2">
         <v-row no-gutters>
