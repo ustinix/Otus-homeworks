@@ -1,21 +1,44 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import { apolloClient, gql } from '../lib/apollo-client';
 import { ref } from 'vue';
 import type { Product } from '../types/product';
-
-const API_URL = 'https://fakestoreapi.com/products';
+import type { ProductQueryResponse } from '../types/apiResponses';
+import { transformApiProductToProduct } from '../utils/transformApiProductToProduct';
 
 export const useProductStore = defineStore('product', () => {
   const product = ref<Product | null>(null);
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
 
-  const getProduct = async (id: number): Promise<void> => {
+  const getProduct = async (id: string): Promise<void> => {
     isLoading.value = true;
     error.value = null;
+    product.value = null;
     try {
-      const { data } = await axios.get<Product>(`${API_URL}/${id}`);
-      product.value = data;
+      const result = await apolloClient.query<ProductQueryResponse>({
+        query: gql`
+          query GetProduct($productId: ID!) {
+            product(id: $productId) {
+              id
+              title
+              price
+              description
+              images
+              category {
+                id
+                name
+                image
+              }
+            }
+          }
+        `,
+        variables: {
+          productId: id,
+        },
+      });
+      product.value = result.data?.product
+        ? transformApiProductToProduct(result.data?.product)
+        : null;
     } catch (err) {
       error.value = err as Error;
       console.error(`Ошибка при загрузке товара ${id}:`, err);

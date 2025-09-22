@@ -20,7 +20,7 @@ const { getProduct } = productStore;
 
 onMounted(() => {
   if (props.id) {
-    getProduct(parseInt(props.id));
+    getProduct(props.id);
   }
 });
 
@@ -28,7 +28,7 @@ watch(
   () => props.id,
   newId => {
     if (newId) {
-      getProduct(parseInt(newId));
+      getProduct(newId);
     }
   },
 );
@@ -50,14 +50,14 @@ const goBack = () => {
       <app-button class="mb-4" variant="outlined" @click="goBack"> ← Назад к каталогу </app-button>
 
       <loading-circle v-if="isLoading" type="card, article, actions"></loading-circle>
-      <error-template v-else-if="error" :error="error" :event="() => getProduct(parseInt(id))" />
+      <error-template v-else-if="error" :error="error" :event="() => getProduct(id)" />
 
       <v-card v-else-if="product" elevation="2">
         <v-row no-gutters>
           <v-col class="image-col" cols="12" md="6">
             <div class="image-container">
               <v-img
-                :src="product.image"
+                :src="product.images"
                 :alt="product.title"
                 width="400"
                 cover
@@ -75,20 +75,6 @@ const goBack = () => {
 
             <v-card-text class="pa-0">
               <p class="text-body-1 mb-4">{{ product.description }}</p>
-
-              <div class="d-flex align-center mb-4">
-                <v-rating
-                  :model-value="product.rating.rate"
-                  color="amber"
-                  density="compact"
-                  half-increments
-                  readonly
-                  size="small"
-                ></v-rating>
-                <span class="text-caption text-grey ms-2">
-                  ({{ product.rating.count }} отзывов)
-                </span>
-              </div>
 
               <div class="text-h4 text-primary mb-4">{{ product.price.toFixed(2) }} руб</div>
             </v-card-text>

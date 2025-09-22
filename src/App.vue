@@ -6,15 +6,34 @@ import type { Product } from './types/product';
 import LoadingCircle from './components/LoadingCircle.vue';
 import ErrorTemplate from './components/ErrorTemplate.vue';
 import { storeToRefs } from 'pinia';
+import { checkAndInitializeAPI } from './utils/api-init';
 
 const productsStore = useProductsStore();
 const { products, isLoading, error } = storeToRefs(productsStore);
 const { getProducts } = productsStore;
 
 const displayedProducts = ref<Product[]>([]);
+const apiInitialized = ref(false);
+const apiError = ref<string | null>(null);
 
 onMounted(async () => {
-  await getProducts();
+  try {
+    const success = await checkAndInitializeAPI();
+
+    if (success) {
+      apiInitialized.value = true;
+    } else {
+      apiError.value = 'Не удалось инициализировать API';
+      console.error('Ошибка инициализации API');
+    }
+  } catch (error) {
+    apiError.value = 'Критическая ошибка инициализации API';
+    console.error('Критическая ошибка инициализации API:', error);
+  } finally {
+    if (apiInitialized.value) {
+      await getProducts();
+    }
+  }
 });
 
 const handleSearchUpdate = (filteredProducts: Product[]) => {

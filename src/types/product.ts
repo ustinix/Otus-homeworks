@@ -1,14 +1,25 @@
-export interface Product {
+interface Category {
   id: number;
-  title?: string;
+  name: string;
+  image: string;
+}
+
+export interface Product {
+  id: string;
+  title: string;
   price: number;
   description: string;
+  images: string;
   category: string;
-  image: string;
-  rating: {
-    rate: number;
-    count: number;
-  };
+}
+
+export interface ApiProduct {
+  id: string;
+  title: string;
+  price: number;
+  description: string;
+  images: string[];
+  category: Category;
 }
 
 export interface ProductFormData {
@@ -17,4 +28,12 @@ export interface ProductFormData {
   description: string;
   category: string;
   image: string;
+}
+
+export interface CreateProductDto {
+  title: string;
+  price: number;
+  description: string;
+  categoryId: string;
+  images: string[];
 }

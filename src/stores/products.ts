@@ -1,18 +1,14 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
-import type { Product } from '../types/product';
+import { apolloClient, gql } from '../lib/apollo-client';
+import type { Product, ApiProduct } from '../types/product';
+import type { ProductsQueryResponse } from '../types/apiResponses';
 import { computed, ref } from 'vue';
-
-const API_URL = 'https://fakestoreapi.com/products';
+import { transformApiProductToProduct } from '../utils/transformApiProductToProduct';
 
 export const useProductsStore = defineStore('products', () => {
   const products = ref<Product[]>([]);
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
-
-  const getProductById = computed(() => (id: number) => {
-    return products.value.find(product => product.id === id);
-  });
 
   const getProductsByCategory = computed(() => (category: string) => {
     return products.value.filter(product => product.category === category);
@@ -22,58 +18,43 @@ export const useProductsStore = defineStore('products', () => {
     products.value.splice(0, products.value.length, ...newProducts);
   };
 
-  const addProductToStore = (product: Product): void => {
-    const index = products.value.findIndex(p => p.id === product.id);
-    if (index === -1) {
-      products.value.push(product);
-    } else {
-      products.value.splice(index, 1, product);
-    }
-  };
-
-  const removeProductFromStore = (id: number): void => {
-    const index = products.value.findIndex(product => product.id === id);
-    if (index !== -1) {
-      products.value.splice(index, 1);
-    }
-  };
-
   const getProducts = async (): Promise<void> => {
     isLoading.value = true;
     error.value = null;
     try {
-      const { data } = await axios.get<Product[]>(API_URL);
-      updateProducts(data);
-    } catch (err) {
-      error.value = err as Error;
-      console.error('Ошибка при загрузке товаров:', err);
-    } finally {
-      isLoading.value = false;
-    }
-  };
+      const result = await apolloClient.query<ProductsQueryResponse>({
+        query: gql`
+          query GetAllProducts {
+            products(limit: 100) {
+              id
+              title
+              price
+              description
+              images
+              category {
+                id
+                name
+              }
+            }
+          }
+        `,
+      });
+      console.log('Ответ от сервера (категории):', result);
+      if (result.data?.products) {
+        console.log('Полученные товары:', result.data.products);
+        const transformedProducts: Product[] = result.data.products.map((apiProduct: ApiProduct) =>
+          transformApiProductToProduct(apiProduct),
+        );
 
-  const addProduct = async (productData: Omit<Product, 'id'>): Promise<Product | void> => {
-    isLoading.value = true;
-    try {
-      const { data } = await axios.post<Product>(API_URL, productData);
-      addProductToStore(data);
-      return data;
+        updateProducts(transformedProducts);
+      } else {
+        console.warn('Нет данных о товарах в ответе');
+        updateProducts([]);
+      }
     } catch (err) {
       error.value = err as Error;
-      console.error('Ошибка при добавлении товара:', err);
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
-  const deleteProduct = async (id: number): Promise<void> => {
-    isLoading.value = true;
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      removeProductFromStore(id);
-    } catch (err) {
-      error.value = err as Error;
-      console.error(`Ошибка при удалении товара с ID ${id}:`, err);
+      console.error('Ошибка при получении товаров:', error);
+      updateProducts([]);
     } finally {
       isLoading.value = false;
     }
@@ -84,11 +65,8 @@ export const useProductsStore = defineStore('products', () => {
     isLoading,
     error,
 
-    getProductById,
     getProductsByCategory,
 
     getProducts,
-    addProduct,
-    deleteProduct,
   };
 });

@@ -18,7 +18,7 @@ const filteredProducts = computed(() => {
   return props.products.filter(product => product.category === props.selectedCategory);
 });
 
-const goToProductPage = (productId: number) => {
+const goToProductPage = (productId: string) => {
   router.push({ name: 'product', params: { id: productId } });
 };
 
@@ -26,7 +26,7 @@ const addToCart = (product: Product) => {
   cartStore.addToCart(product);
 };
 
-const getProductQuantity = (productId: number) => {
+const getProductQuantity = (productId: string) => {
   const cartItem = cartStore.items.find(item => item.product.id === productId);
   return cartItem ? cartItem.quantity : 0;
 };
@@ -45,7 +45,7 @@ const getProductQuantity = (productId: number) => {
       >
         <v-card class="h-100 d-flex flex-column" elevation="2">
           <v-img
-            :src="product.image"
+            :src="product.images"
             :alt="product.title"
             height="200"
             cover
@@ -58,17 +58,6 @@ const getProductQuantity = (productId: number) => {
           <v-card-text class="flex-grow-1">
             <div class="text-subtitle-1 mb-2">${{ product.price.toFixed(2) }}</div>
             <div class="text-caption text-grey mb-2">{{ product.category }}</div>
-            <div class="d-flex align-center justify-center">
-              <v-rating
-                :model-value="product.rating.rate"
-                color="amber"
-                density="compact"
-                size="small"
-                half-increments
-                readonly
-              ></v-rating>
-              <span class="text-caption text-grey ms-2"> ({{ product.rating.count }}) </span>
-            </div>
           </v-card-text>
 
           <v-card-actions class="card-actions">
