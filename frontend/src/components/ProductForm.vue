@@ -1,15 +1,38 @@
 <script setup lang="ts">
 import { useField, useForm } from 'vee-validate';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import BaseForm from './BaseForm.vue';
-import { useProductsStore } from '../stores/products';
 import type { Product } from '../types/product';
 import type { ProductFormValues } from '../types/forms';
 import { productValidationSchema } from '../utils/productValidation';
+import { apolloClient } from '../lib/apollo-client';
+import { gql } from '@apollo/client/core';
+import type { AddProductMutationResponse, CategoriesQueryResponse } from '../types/apiResponses';
 
-const emit = defineEmits<{
-  created: [product: Product];
-}>();
+const categories = ref<{ id: number; name: string }[]>([]);
+const isLoadingCategories = ref(false);
+
+const loadCategories = async () => {
+  isLoadingCategories.value = true;
+  try {
+    const result = await apolloClient.query<CategoriesQueryResponse>({
+      query: gql`
+        query GetCategories {
+          categories {
+            id
+            name
+          }
+        }
+      `,
+    });
+
+    categories.value = result.data?.categories || [];
+  } catch (error) {
+    console.error('Ошибка загрузки категорий:', error);
+  } finally {
+    isLoadingCategories.value = false;
+  }
+};
 
 const { handleReset } = useForm<ProductFormValues>({
   validationSchema: productValidationSchema,
@@ -20,30 +43,81 @@ const price = useField<string>('price');
 const description = useField<string>('description');
 const category = useField<string>('category');
 const imageURL = useField<string>('imageURL');
-const ratingCount = useField<string>('ratingCount');
-const rating = useField<string>('select');
-
-const items = ref<string[]>(['0', '1', '2', '3', '4', '5']);
 const isLoading = ref(false);
+
+const onFormReset = () => {
+  handleReset();
+};
+
+const addProduct = async (productData: {
+  title: string;
+  price: number;
+  description: string;
+  categoryId: number;
+  images: string[];
+}): Promise<Product | null> => {
+  try {
+    const result = await apolloClient.mutate<AddProductMutationResponse>({
+      mutation: gql`
+        mutation CreateProduct($data: CreateProductDto!) {
+          addProduct(data: $data) {
+            id
+            title
+            price
+            description
+            images
+            category {
+              id
+              name
+              image
+            }
+          }
+        }
+      `,
+      variables: {
+        data: productData,
+      },
+    });
+
+    if (result.data?.addProduct) {
+      const apiProduct = result.data.addProduct;
+
+      const newProduct: Product = {
+        id: apiProduct.id,
+        title: apiProduct.title,
+        price: apiProduct.price,
+        description: apiProduct.description,
+        category: apiProduct.category.name,
+        images: apiProduct.images[0] || '',
+      };
+
+      alert('Товар успешно создан');
+      return newProduct;
+    }
+    return null;
+  } catch (error) {
+    alert(' Ошибка при создании товара');
+    throw error;
+  }
+};
 
 const submit = async () => {
   isLoading.value = true;
-  const productData: Omit<Product, 'id'> = {
-    title: name.value.value,
-    price: parseFloat(price.value.value),
-    description: description.value.value,
-    category: category.value.value,
-    image: imageURL.value.value,
-    rating: {
-      rate: parseFloat(rating.value.value),
-      count: parseInt(ratingCount.value.value),
-    },
-  };
+
   try {
-    const newProduct = await useProductsStore().addProduct(productData);
+    const productData = {
+      title: name.value.value,
+      price: parseFloat(price.value.value),
+      description: description.value.value,
+      categoryId: parseInt(category.value.value),
+      images: [imageURL.value.value],
+    };
+
+    console.log('Отправка данных товара:', productData);
+
+    const newProduct = await addProduct(productData);
 
     if (newProduct) {
-      emit('created', newProduct);
       handleReset();
     }
   } catch (error) {
@@ -53,9 +127,9 @@ const submit = async () => {
   }
 };
 
-const onFormReset = () => {
-  handleReset();
-};
+onMounted(() => {
+  loadCategories();
+});
 </script>
 
 <template>
@@ -65,6 +139,10 @@ const onFormReset = () => {
         <base-form @send="submit" @reset="onFormReset">
           <template #header>
             <v-card-title class="headline">Создание нового товара</v-card-title>
+            <v-card-subtitle v-if="isLoadingCategories"> Загрузка категорий... </v-card-subtitle>
+            <v-card-subtitle v-else-if="categories.length === 0" class="error--text">
+              Не удалось загрузить категории
+            </v-card-subtitle>
           </template>
 
           <template #body>
@@ -94,13 +172,17 @@ const onFormReset = () => {
               :disabled="isLoading"
             ></v-textarea>
 
-            <v-text-field
+            <v-select
               v-model="category.value.value"
               :error-messages="category.errorMessage.value"
+              :items="categories"
+              item-title="name"
+              item-value="id"
               label="Категория"
+              :loading="isLoadingCategories"
+              :disabled="isLoading || isLoadingCategories"
               required
-              :disabled="isLoading"
-            ></v-text-field>
+            ></v-select>
 
             <v-text-field
               v-model="imageURL.value.value"
@@ -109,25 +191,6 @@ const onFormReset = () => {
               required
               :disabled="isLoading"
             ></v-text-field>
-
-            <v-text-field
-              v-model="ratingCount.value.value"
-              :error-messages="ratingCount.errorMessage.value"
-              label="Количество оценок"
-              type="number"
-              min="0"
-              required
-              :disabled="isLoading"
-            ></v-text-field>
-
-            <v-select
-              v-model="rating.value.value"
-              :error-messages="rating.errorMessage.value"
-              :items="items"
-              label="Рейтинг"
-              required
-              :disabled="isLoading"
-            ></v-select>
           </template>
 
           <template #actions>

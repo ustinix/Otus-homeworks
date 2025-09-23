@@ -19,8 +19,11 @@ export interface AddCategoryMutationResponse {
 
 export interface AddProductMutationResponse {
   addProduct: {
+    images: string[];
     id: string;
     title: string;
     price: number;
+    category: Category;
+    description: string;
   };
 }

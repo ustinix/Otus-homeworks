@@ -7,10 +7,10 @@ import ErrorTemplate from '../components/ErrorTemplate.vue';
 
 const cartStore = useCartStore();
 const { items, totalItems, totalPrice, isLoading, error } = storeToRefs(cartStore);
-const { loadFromStorage, decrementQuantity, incrementQuantity, removeFromCart } = cartStore;
+const { decrementQuantity, incrementQuantity, removeFromCart, clearCart } = cartStore;
 
 const reloadCart = async () => {
-  await loadFromStorage();
+  cartStore.error = null;
 };
 </script>
 
@@ -22,13 +22,14 @@ const reloadCart = async () => {
       <h2 class="text-h4 font-weight-bold mb-6">Корзина</h2>
       <div v-if="totalItems === 0" class="empty-cart">
         <p data-test="emptyCartMess">Ваша корзина пуста</p>
+        <v-btn to="/" color="primary" size="large"> Начать покупки </v-btn>
       </div>
       <v-list v-else class="cart-list">
         <v-list-item v-for="item in items" :key="item.product.id" class="cart-item">
           <div class="item-content">
             <div class="image-container">
               <v-img
-                :src="item.product.image"
+                :src="item.product.images"
                 :aspect-ratio="1"
                 width="80"
                 contain
@@ -84,6 +85,10 @@ const reloadCart = async () => {
         </v-list-item>
       </v-list>
       <div v-if="totalItems > 0" class="checkout-section">
+        <v-btn color="error" size="large" class="checkout-btn" @click="clearCart()">
+          <v-icon start>mdi-delete</v-icon>
+          Очистить корзину
+        </v-btn>
         <div class="total-price">
           <h3 class="text-h5">Итого: {{ totalPrice.toFixed(2) }} руб.</h3>
         </div>
@@ -161,11 +166,11 @@ const reloadCart = async () => {
   padding: 20px;
   background: #f8f9fa;
   border-radius: 12px;
-  text-align: center;
+  text-align: right;
 }
 
 .total-price {
-  margin-bottom: 16px;
+  margin: 16px 0;
 }
 
 .checkout-btn {
@@ -173,6 +178,11 @@ const reloadCart = async () => {
 }
 
 .empty-cart {
+  margin: 0 auto;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
   text-align: center;
   padding: 40px;
   color: #999;

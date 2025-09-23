@@ -7,7 +7,7 @@ import type {
   ProductsQueryResponse,
   AddCategoryMutationResponse,
   AddProductMutationResponse,
-} from '../types/apiResponses.js';
+} from '../types/apiResponses';
 
 interface CreateProductDto {
   title: string;
@@ -194,7 +194,6 @@ const getAllCategories = async (): Promise<Category[]> => {
         }
       `,
     });
-    console.log('Полученные категории:', result.data?.categories);
     return result.data?.categories || [];
   } catch (error) {
     console.error('Ошибка при получении категорий:', error);

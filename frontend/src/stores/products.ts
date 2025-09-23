@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { apolloClient, gql } from '../lib/apollo-client';
-import type { Product, ApiProduct } from '../types/product';
-import type { ProductsQueryResponse } from '../types/apiResponses';
+import type { Product, ApiProduct, CreateProductDto } from '../types/product';
+import type { AddProductMutationResponse, ProductsQueryResponse } from '../types/apiResponses';
 import { computed, ref } from 'vue';
 import { transformApiProductToProduct } from '../utils/transformApiProductToProduct';
 
@@ -64,9 +64,7 @@ export const useProductsStore = defineStore('products', () => {
     products,
     isLoading,
     error,
-
     getProductsByCategory,
-
     getProducts,
   };
 });
