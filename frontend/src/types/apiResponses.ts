@@ -1,5 +1,5 @@
-import type { ApiProduct } from '../types/product';
-import type { Category } from '../types/category';
+import type { ApiProduct } from './product';
+import type { Category } from './category';
 
 export interface CategoriesQueryResponse {
   categories: Category[];

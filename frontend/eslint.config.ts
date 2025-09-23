@@ -6,6 +6,16 @@ import stylistic from '@stylistic/eslint-plugin';
 
 export default [
   {
+    ignores: [
+      'node_modules/**',
+      'dist/**',
+      'build/**',
+      '*.min.js',
+      '*.bundle.js',
+      '**/*.d.ts',
+      'coverage/**',
+      '**/vendor/**',
+    ],
     files: ['**/*.{js,mjs,cjs,ts,mts,cts,vue}'],
     plugins: {
       js,
@@ -24,7 +34,6 @@ export default [
     rules: {
       ...js.configs.recommended.rules,
       '@stylistic/indent': ['error', 2],
-      '@stylistic/quotes': ['error', 'single'],
       '@stylistic/semi': ['error', 'always'],
     },
   },

@@ -1,13 +1,13 @@
-import { apolloClient, gql } from '../lib/apollo-client.ts';
-import { demoProducts, demoCategories } from '../assets/constants.ts';
-import type { ApiProduct } from '../types/product';
-import type { Category } from '../types/category';
+import { apolloClient, gql } from '../lib/apollo-client.js';
+import { demoProducts, demoCategories } from '../assets/constants.js';
+import type { ApiProduct } from '../types/product.js';
+import type { Category } from '../types/category.js';
 import type {
   CategoriesQueryResponse,
   ProductsQueryResponse,
   AddCategoryMutationResponse,
   AddProductMutationResponse,
-} from '../types/apiResponses.ts';
+} from '../types/apiResponses.js';
 
 interface CreateProductDto {
   title: string;
