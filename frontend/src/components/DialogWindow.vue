@@ -24,25 +24,13 @@ const close = () => {
     <v-card v-if="selectedProduct">
       <v-card-title>{{ selectedProduct.title }}</v-card-title>
 
-      <v-img :src="selectedProduct.image" :alt="selectedProduct.title" height="300" cover></v-img>
+      <v-img :src="selectedProduct.images" :alt="selectedProduct.title" height="300" cover></v-img>
 
       <v-card-text>
         <div class="my-2">
           <v-chip>{{ selectedProduct.category }}</v-chip>
         </div>
         <p>{{ selectedProduct.description }}</p>
-        <div class="d-flex align-center mt-2">
-          <v-rating
-            :model-value="selectedProduct.rating.rate"
-            color="amber"
-            density="compact"
-            half-increments
-            readonly
-          ></v-rating>
-          <span class="text-caption text-grey ms-2">
-            ({{ selectedProduct.rating.count }} отзывов)
-          </span>
-        </div>
       </v-card-text>
       <v-card-subtitle class="ms-2 text-h6">${{ selectedProduct.price }}</v-card-subtitle>
       <v-card-actions>
